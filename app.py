@@ -48,7 +48,7 @@ def upload_and_extract_table():
     file_type = None 
     if not file:
         st.info("No file uploaded. Using the default image for table extraction.")
-        default_file_path = os.path.join("assets", "invoice/en_invoice.png")
+        default_file_path = os.path.join("assets", "invoice/vi_invoice.jpg")
         with open(default_file_path, "rb") as default_file:
             file_content = default_file.read()  
         file = BytesIO(file_content)  
@@ -65,15 +65,11 @@ def upload_and_extract_table():
     table_detected_image, contours = detect_and_show_table(file)
     st.image(table_detected_image, caption="Detected Table(s)", use_container_width=True)
 
-    # Measure time for table extraction
-    start_time = time.time()
     if contours:
         st.info(f"{len(contours)} table(s) detected. Processing the largest table.")            
         # Process the largest table
         largest_contour = max(contours, key=cv2.contourArea)
         table = extract_table_from_image(file, largest_contour)   
-        elapsed_time = time.time() - start_time
-        st.info(f"⏱️ Table extraction completed in {elapsed_time:.2f} seconds.")         
         if not table.empty:
             st.write("Extracted Table:")
             st.write(table)                
