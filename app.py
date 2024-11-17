@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+from streamlit_option_menu import option_menu
 
 # App Title and Header
 st.set_page_config(page_title="TableSnap", layout="wide", page_icon="🧾")
@@ -7,14 +8,66 @@ st.title("🧾 TableSnap")
 st.markdown("**Effortlessly extract, organize, and analyze tables from invoices, receipts, and more.**")
 
 # Sidebar for Navigation
-st.sidebar.title("Navigation")
-menu = st.sidebar.radio(
-    "Go to", ["Home", "Upload Document", "Extract Table", "Summarization", "Chatbot"]
-)
+st.sidebar.header("Navigation")
+with st.sidebar:
+    selected = option_menu(
+        menu_title=None,
+        options=["🏠 Home", "📂 Upload & Extract", "💬 Go Chat"],
+        icons=["house", "file-earmark-arrow-up", "chat-dots"],
+        menu_icon="cast",
+        default_index=1,  # Default to "📂 Upload & Extract"
+        styles={
+            "container": {"padding": "0!important", "background-color": "#f0f2f6"},
+            "nav-link": {
+                "font-size": "16px",
+                "text-align": "left",
+                "margin": "5px",
+                "--hover-color": "#eee",
+            },
+            "nav-link-selected": {"background-color": "#02ab21"},
+        },
+    )
 
-# Function to Simulate Table Extraction
+# Update session state based on the selected menu option
+if "page" not in st.session_state:
+    st.session_state.page = "upload_extract"  # Default to "Upload & Extract" page
+
+if selected == "🏠 Home":
+    st.session_state.page = "home"
+elif selected == "📂 Upload & Extract":
+    st.session_state.page = "upload_extract"
+elif selected == "💬 Go Chat":
+    st.session_state.page = "chat"
+
+# Function: Upload and Extract Table
+def upload_and_extract_table():
+    st.header("📂 Upload and Extract Table")
+    
+    # File uploader
+    file = st.file_uploader("Upload a PDF, Image, or Excel File", type=["pdf", "png", "jpg", "jpeg", "xlsx"])
+    
+    if file:
+        # Display success message
+        st.success("File uploaded successfully!")
+        
+        # Simulated table extraction function
+        table = extract_table(file)
+        
+        if not table.empty:
+            # Display the extracted table
+            st.write(table)
+            
+            # Allow user to download the table as CSV
+            st.download_button("Download as CSV", table.to_csv(index=False), "table.csv")
+            
+            # Store the table in session state for further processing (e.g., summarization, chatbot)
+            st.session_state["table"] = table
+        else:
+            st.warning("No tables found in the uploaded document. Please try a different file.")
+
+# Simulated Extract Table Function (Replace with Actual Implementation)
 def extract_table(file):
-    # Simulate table extraction for demonstration
+    # Simulated data extraction for demonstration purposes
     data = {
         "Item": ["Item A", "Item B", "Item C"],
         "Quantity": [10, 5, 7],
@@ -23,64 +76,28 @@ def extract_table(file):
     }
     return pd.DataFrame(data)
 
-# Home Page
-if menu == "Home":
-    st.header("Welcome to TableSnap!")
+# Page Content Based on Selected Menu
+if st.session_state.page == "home":
+    st.title("Welcome to TableSnap! 🧾")
+    st.markdown(
+        """
+        **TableSnap** is your all-in-one solution for extracting, summarizing, 
+        and analyzing data from tables in invoices, receipts, and other documents.
+        """
+    )
     st.image("https://source.unsplash.com/featured/?data", use_column_width=True)
-    st.markdown("""
-        - 📂 **Upload and Extract**: Process tables from PDFs, images, or Excel files.
-        - 📊 **Summarization**: Generate insights like totals, trends, and key highlights.
-        - 🤖 **AI Chatbot**: Ask questions about your data and get instant answers.
-        - 🌐 **Export**: Save data in CSV, Excel, or JSON formats.
-    """)
-    st.markdown("**Get started by uploading a document in the sidebar.**")
 
-# Upload Document Page
-elif menu == "Upload Document":
-    st.header("📂 Upload Your Document")
-    file = st.file_uploader("Upload a PDF, Image, or Excel File", type=["pdf", "png", "jpg", "jpeg", "xlsx"])
-    if file:
-        st.success("File uploaded successfully!")
-        st.session_state["file"] = file
-        st.markdown("Go to the **Extract Table** tab to process your document.")
+elif st.session_state.page == "upload_extract":
+    upload_and_extract_table()
 
-# Extract Table Page
-elif menu == "Extract Table":
-    st.header("📊 Extracted Table")
-    if "file" in st.session_state:
-        st.write("Processing your file...")
-        table = extract_table(st.session_state["file"])
-        st.write(table)
-        st.session_state["table"] = table
-        st.markdown("**Summary Options**")
-        st.download_button("Download as CSV", table.to_csv(index=False), "table.csv")
-    else:
-        st.warning("Please upload a file first.")
-
-# Summarization Page
-elif menu == "Summarization":
-    st.header("📈 Table Summarization")
-    if "table" in st.session_state:
-        st.markdown("**Extracted Summary**")
-        table = st.session_state["table"]
-        total = table["Total"].sum()
-        st.metric("Total Amount", f"{total} VND")
-    else:
-        st.warning("Please extract a table first.")
-
-# Chatbot Page
-elif menu == "Chatbot":
-    st.header("🤖 AI Chatbot")
-    if "table" in st.session_state:
-        st.markdown("**Ask me anything about your data!**")
-        query = st.text_input("Type your question:")
-        if query:
-            # Simulated chatbot response
-            chatbot_response = f"I'm sorry, I can't fully understand your data yet. Try asking simpler questions!"
-            st.write(f"**Bot:** {chatbot_response}")
-    else:
-        st.warning("Please extract a table first.")
+elif st.session_state.page == "chat":
+    st.title("💬 Chat with AI")
+    st.markdown("Ask me anything about your extracted data or tables!")
+    user_input = st.text_input("Type your question:")
+    if user_input:
+        # Simulated chatbot response (Replace with actual chatbot logic)
+        st.write(f"🤖 Bot: I'm here to help with your data questions!")
 
 # Footer
 st.markdown("---")
-st.markdown("**Developed by [TableSnap](https://github.com/your-repo)** - Powered by Streamlit 🚀")
+st.markdown("**Developed by TableSnap** - Powered by Streamlit 🚀")
