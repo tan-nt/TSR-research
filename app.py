@@ -1,9 +1,10 @@
 import streamlit as st
 from streamlit_option_menu import option_menu
 import time
-from app.table_extraction.table_extraction import extract_table
+from app.table_extraction.table_extraction import detect_and_show_table, extract_table_from_image
 import os
 from io import BytesIO
+import cv2
 
 # App Title and Header
 st.set_page_config(page_title="TableSnap", layout="wide", page_icon="🧾")
@@ -59,29 +60,40 @@ def upload_and_extract_table():
     else:
         file_type = file.name.split(".")[-1].lower()
 
-    st.success("File uploaded successfully!")
+    # st.success("File uploaded successfully!")
     
     if file_type in ["png", "jpg", "jpeg"]:
         st.image(file, caption="Uploaded Image", use_container_width=True)
     else:
         st.warning("Displaying images is supported only for PNG, JPG, and JPEG formats.")
+        
+        
+    # Detect and show table
+    table_detected_image, contours = detect_and_show_table(file)
+    st.image(table_detected_image, caption="Detected Table(s)", use_column_width=True)
+
 
     # Measure time for table extraction
     start_time = time.time()
-    table = extract_table(file, file_type) 
-    elapsed_time = time.time() - start_time
-    st.info(f"⏱️ Table extraction completed in {elapsed_time:.2f} seconds.")
-        
-    if not table.empty:
-        st.write(table)
-        st.download_button("Download as CSV", table.to_csv(index=False), "table.csv")
-        
-        st.session_state["table"] = table
+     # If tables are detected, allow user to process further
+    if contours:
+        st.info(f"{len(contours)} table(s) detected. Processing the largest table.")            
+        # Process the largest table
+        largest_contour = max(contours, key=cv2.contourArea)
+        table = extract_table_from_image(file, largest_contour)   
+        elapsed_time = time.time() - start_time
+        st.info(f"⏱️ Table extraction completed in {elapsed_time:.2f} seconds.")         
+        if not table.empty:
+            st.write("Extracted Table:")
+            st.write(table)                
+            # Allow user to download the table as CSV
+            st.download_button("Download as CSV", table.to_csv(index=False), "table.csv")
+        else:
+            st.warning("No text detected in the table region.")
     else:
-        st.warning("No tables found in the uploaded document. Please try a different file.")
+        st.warning("No tables detected in the uploaded image.")
 
-
-
+        
 if st.session_state.page == "home":
     st.title("Welcome to TableSnap! 🧾")
     st.markdown(
