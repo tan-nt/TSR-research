@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 from streamlit_option_menu import option_menu
+import time
 
 # App Title and Header
 st.set_page_config(page_title="TableSnap", layout="wide", page_icon="🧾")
@@ -50,8 +51,13 @@ def upload_and_extract_table():
         # Display success message
         st.success("File uploaded successfully!")
         
+        # Measure time for table extraction
+        start_time = time.time()  # Start the timer
         # Simulated table extraction function
         table = extract_table(file)
+        elapsed_time = time.time() - start_time  # Calculate elapsed time
+        # Display the processing time
+        st.info(f"⏱️ Table extraction completed in {elapsed_time:.2f} seconds.")
         
         if not table.empty:
             # Display the extracted table
