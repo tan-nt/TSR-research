@@ -42,6 +42,14 @@ elif selected == "💬 Go Chat":
     st.session_state.page = "chat"
 
 def upload_and_extract_table():
+    # Sidebar Configuration UI
+    st.sidebar.title("Table Extraction Configuration")
+    extraction_method = st.sidebar.radio(
+        "Choose Table Extraction Method",
+        options=["Contours Detection", "Text-based (OCR)", "Manual Bounding Box"],
+        help="Select how you want to extract tables from the uploaded image."
+    )
+    
     st.header("📂 Upload and Extract Table")
     
     file = st.file_uploader("Upload a PDF, Image, or Excel File", type=["pdf", "png", "jpg", "jpeg", "xlsx"])
@@ -61,21 +69,21 @@ def upload_and_extract_table():
     else:
         st.warning("Displaying images is supported only for PNG, JPG, and JPEG formats.")
         
-    # Detect and show table
-    table_detected_image, contours = detect_and_show_table(file)
-    st.image(table_detected_image, caption="Detected Table(s)", use_container_width=True)
+    if extraction_method == "Contours Detection":
+        table_detected_image, contours = detect_and_show_table(file)
+        st.image(table_detected_image, caption="Detected Table(s)", use_container_width=True)
 
-    if contours:
-        st.info(f"{len(contours)} table(s) detected. Processing the largest table.")            
-        # Process the largest table
-        largest_contour = max(contours, key=cv2.contourArea)
-        table = extract_table_from_image(file, largest_contour)   
-        if not table.empty:
-            st.write("Extracted Table:")
-            st.write(table)                
-            st.download_button("Download as CSV", table.to_csv(index=False), "table.csv")
-        else:
-            st.warning("No text detected in the table region.")
+        if contours:
+            st.info(f"{len(contours)} table(s) detected. Processing the largest table.")            
+            # Process the largest table
+            largest_contour = max(contours, key=cv2.contourArea)
+            table = extract_table_from_image(file, largest_contour)   
+            if not table.empty:
+                st.write("Extracted Table:")
+                st.write(table)                
+                st.download_button("Download as CSV", table.to_csv(index=False), "table.csv")
+            else:
+                st.warning("No text detected in the table region.")
     else:
         st.warning("No tables detected in the uploaded image.")
 

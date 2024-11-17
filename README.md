@@ -71,7 +71,7 @@ Modern Tech Stack: Flask (Backend), React (Frontend), PostgreSQL (Database).
 
 ### 6. 🌐 Live Demo
 
-Try TableSnap live at: Your Live Demo Link.
+Try TableSnap live at: [Steamlit web app link](https://tablesnap-imp.streamlit.app/)
 
 ### 7. 🤝 Contributing
 
