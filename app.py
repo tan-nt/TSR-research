@@ -18,7 +18,7 @@ with st.sidebar:
         options=["🏠 Home", "📂 Upload & Extract", "💬 Go Chat"],
         icons=["house", "file-earmark-arrow-up", "chat-dots"],
         menu_icon="cast",
-        default_index=1,  # Default to "📂 Upload & Extract"
+        default_index=1,
         styles={
             "container": {"padding": "0!important", "background-color": "#f0f2f6"},
             "nav-link": {
@@ -47,41 +47,33 @@ elif selected == "💬 Go Chat":
 def upload_and_extract_table():
     st.header("📂 Upload and Extract Table")
     
-    # File uploader
     file = st.file_uploader("Upload a PDF, Image, or Excel File", type=["pdf", "png", "jpg", "jpeg", "xlsx"])
-    file_type = None  # Initialize the file type
-
-    # Use default image if no file is uploaded
+    file_type = None 
     if not file:
         st.info("No file uploaded. Using the default image for table extraction.")
         default_file_path = os.path.join("assets", "04-phieu-xuat-kho-pdf.en.jpg")
         with open(default_file_path, "rb") as default_file:
-            file_content = default_file.read()  # Read file content into memory
-        file = BytesIO(file_content)  # Create a BytesIO object from the file content
-        file_type = "jpg"  # Set the file type for the default image
+            file_content = default_file.read()  
+        file = BytesIO(file_content)  
+        file_type = "jpg"  
     else:
-        # Extract file type from the uploaded file
         file_type = file.name.split(".")[-1].lower()
 
     st.success("File uploaded successfully!")
     
-    # Show the image
     if file_type in ["png", "jpg", "jpeg"]:
         st.image(file, caption="Uploaded Image", use_container_width=True)
     else:
         st.warning("Displaying images is supported only for PNG, JPG, and JPEG formats.")
 
-    
     # Measure time for table extraction
     start_time = time.time()
-    table = extract_table(file, file_type)  # Pass the file type explicitly
+    table = extract_table(file, file_type) 
     elapsed_time = time.time() - start_time
     st.info(f"⏱️ Table extraction completed in {elapsed_time:.2f} seconds.")
         
     if not table.empty:
         st.write(table)
-        
-        # Allow user to download the table as CSV
         st.download_button("Download as CSV", table.to_csv(index=False), "table.csv")
         
         st.session_state["table"] = table
@@ -89,16 +81,6 @@ def upload_and_extract_table():
         st.warning("No tables found in the uploaded document. Please try a different file.")
 
 
-# Simulated Extract Table Function (Replace with Actual Implementation)
-# def extract_table(file):
-#     # Simulated data extraction for demonstration purposes
-#     data = {
-#         "Item": ["Item A", "Item B", "Item C"],
-#         "Quantity": [10, 5, 7],
-#         "Price": [100, 200, 150],
-#         "Total": [1000, 1000, 1050],
-#     }
-#     return pd.DataFrame(data)
 
 if st.session_state.page == "home":
     st.title("Welcome to TableSnap! 🧾")
