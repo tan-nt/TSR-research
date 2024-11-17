@@ -1,8 +1,5 @@
 import streamlit as st
 import pandas as pd
-import json
-from PIL import Image
-from transformers import pipeline
 
 # App Title and Header
 st.set_page_config(page_title="TableSnap", layout="wide", page_icon="🧾")
