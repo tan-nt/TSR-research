@@ -2,17 +2,17 @@ import cv2
 import pytesseract
 import pdfplumber
 import pandas as pd
+import streamlit as st
+import numpy as np
 
+# Updated extract_table function
 def extract_table(file, file_type):
-    if file_type == "pdf":
-        return extract_table_from_pdf(file)
-    elif file_type == "image":
+    if file_type in ["png", "jpg", "jpeg"]:
         return extract_table_from_image(file)
-    elif file_type == "excel":
-        return extract_table_from_excel(file)
     else:
-        raise ValueError("Unsupported file type")
-    
+        st.warning(f"Unsupported file type '{file_type}' for this demo.")
+        return pd.DataFrame()
+
     
 def extract_table_from_pdf(pdf_file):
     tables = []
@@ -28,18 +28,23 @@ def extract_table_from_pdf(pdf_file):
         return pd.DataFrame()  # Return empty DataFrame if no tables found
     
 def extract_table_from_image(image_file):
-    # Preprocess the image
-    image = cv2.imread(image_file)
+    # Read the uploaded file as bytes and decode it
+    file_bytes = np.asarray(bytearray(image_file.read()), dtype=np.uint8)
+    image = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)  # Decode to an image array
+    
+    # Convert to grayscale
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    
+    # Binarize the image
     _, binary = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY)
-
+    
     # OCR for text extraction
     ocr_data = pytesseract.image_to_string(binary, config="--psm 6")  # Assume a uniform table
     rows = ocr_data.split("\n")
     
     # Split rows into columns
     table_data = [row.split() for row in rows if row.strip()]  # Customize split logic based on table structure
-
+    
     # Convert to DataFrame
     df = pd.DataFrame(table_data)
     return df
