@@ -48,7 +48,7 @@ def upload_and_extract_table():
     file_type = None 
     if not file:
         st.info("No file uploaded. Using the default image for table extraction.")
-        default_file_path = os.path.join("assets", "04-phieu-xuat-kho-pdf.en.jpg")
+        default_file_path = os.path.join("assets", "invoice/en_invoice.png")
         with open(default_file_path, "rb") as default_file:
             file_content = default_file.read()  
         file = BytesIO(file_content)  

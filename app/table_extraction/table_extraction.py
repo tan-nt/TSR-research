@@ -6,7 +6,7 @@ import numpy as np
 from easyocr import Reader
 
 # Initialize EasyOCR
-ocr_engine = Reader(['vi'], gpu=False)  # Add 'en' or other languages as needed
+ocr_engine = Reader(['vi', 'en'], gpu=False)  # Add 'en' or other languages as needed
 
 # Updated extract_table function
 def extract_table(file, file_type):
