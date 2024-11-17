@@ -70,7 +70,7 @@ def upload_and_extract_table():
         
     # Detect and show table
     table_detected_image, contours = detect_and_show_table(file)
-    st.image(table_detected_image, caption="Detected Table(s)", use_column_width=True)
+    st.image(table_detected_image, caption="Detected Table(s)", use_container_width=True)
 
 
     # Measure time for table extraction
@@ -102,7 +102,7 @@ if st.session_state.page == "home":
         and analyzing data from tables in invoices, receipts, and other documents.
         """
     )
-    st.image("https://source.unsplash.com/featured/?data", use_column_width=True)
+    st.image("https://source.unsplash.com/featured/?data", use_container_width=True)
 
 elif st.session_state.page == "upload_extract":
     upload_and_extract_table()
