@@ -40,33 +40,25 @@ elif selected == "📂 Upload & Extract":
 elif selected == "💬 Go Chat":
     st.session_state.page = "chat"
 
-# Function: Upload and Extract Table
 def upload_and_extract_table():
     st.header("📂 Upload and Extract Table")
     
-    # File uploader
     file = st.file_uploader("Upload a PDF, Image, or Excel File", type=["pdf", "png", "jpg", "jpeg", "xlsx"])
-    
     if file:
-        # Display success message
         st.success("File uploaded successfully!")
         
-        # Measure time for table extraction
-        start_time = time.time()  # Start the timer
+        start_time = time.time()
         # Simulated table extraction function
         table = extract_table(file)
-        elapsed_time = time.time() - start_time  # Calculate elapsed time
-        # Display the processing time
+        elapsed_time = time.time() - start_time 
         st.info(f"⏱️ Table extraction completed in {elapsed_time:.2f} seconds.")
         
         if not table.empty:
-            # Display the extracted table
             st.write(table)
             
             # Allow user to download the table as CSV
             st.download_button("Download as CSV", table.to_csv(index=False), "table.csv")
             
-            # Store the table in session state for further processing (e.g., summarization, chatbot)
             st.session_state["table"] = table
         else:
             st.warning("No tables found in the uploaded document. Please try a different file.")
@@ -82,7 +74,6 @@ def extract_table(file):
     }
     return pd.DataFrame(data)
 
-# Page Content Based on Selected Menu
 if st.session_state.page == "home":
     st.title("Welcome to TableSnap! 🧾")
     st.markdown(
@@ -101,9 +92,7 @@ elif st.session_state.page == "chat":
     st.markdown("Ask me anything about your extracted data or tables!")
     user_input = st.text_input("Type your question:")
     if user_input:
-        # Simulated chatbot response (Replace with actual chatbot logic)
         st.write(f"🤖 Bot: I'm here to help with your data questions!")
 
-# Footer
 st.markdown("---")
 st.markdown("**Developed by TableSnap** - Powered by Streamlit 🚀")
