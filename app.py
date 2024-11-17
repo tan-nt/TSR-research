@@ -6,12 +6,10 @@ import os
 from io import BytesIO
 import cv2
 
-# App Title and Header
 st.set_page_config(page_title="TableSnap", layout="wide", page_icon="🧾")
 st.title("🧾 TableSnap")
 st.markdown("**Effortlessly extract, organize, and analyze tables from invoices, receipts, and more.**")
 
-# Sidebar for Navigation
 st.sidebar.header("Navigation")
 with st.sidebar:
     selected = option_menu(
@@ -32,9 +30,9 @@ with st.sidebar:
         },
     )
 
-# Update session state based on the selected menu option
 if "page" not in st.session_state:
-    st.session_state.page = "upload_extract"  # Default to "Upload & Extract" page
+    st.session_state.page = "upload_extract"  
+# Default to "Upload & Extract" page
 
 if selected == "🏠 Home":
     st.session_state.page = "home"
@@ -42,8 +40,6 @@ elif selected == "📂 Upload & Extract":
     st.session_state.page = "upload_extract"
 elif selected == "💬 Go Chat":
     st.session_state.page = "chat"
-
-
 
 def upload_and_extract_table():
     st.header("📂 Upload and Extract Table")
@@ -60,22 +56,17 @@ def upload_and_extract_table():
     else:
         file_type = file.name.split(".")[-1].lower()
 
-    # st.success("File uploaded successfully!")
-    
     if file_type in ["png", "jpg", "jpeg"]:
         st.image(file, caption="Uploaded Image", use_container_width=True)
     else:
         st.warning("Displaying images is supported only for PNG, JPG, and JPEG formats.")
         
-        
     # Detect and show table
     table_detected_image, contours = detect_and_show_table(file)
     st.image(table_detected_image, caption="Detected Table(s)", use_container_width=True)
 
-
     # Measure time for table extraction
     start_time = time.time()
-     # If tables are detected, allow user to process further
     if contours:
         st.info(f"{len(contours)} table(s) detected. Processing the largest table.")            
         # Process the largest table
@@ -86,14 +77,12 @@ def upload_and_extract_table():
         if not table.empty:
             st.write("Extracted Table:")
             st.write(table)                
-            # Allow user to download the table as CSV
             st.download_button("Download as CSV", table.to_csv(index=False), "table.csv")
         else:
             st.warning("No text detected in the table region.")
     else:
         st.warning("No tables detected in the uploaded image.")
 
-        
 if st.session_state.page == "home":
     st.title("Welcome to TableSnap! 🧾")
     st.markdown(

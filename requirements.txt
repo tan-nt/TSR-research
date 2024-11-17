@@ -1,7 +1,7 @@
 Pillow
 streamlit
 numpy
-pytesseract
 pdfplumber
 streamlit_option_menu
 opencv-python
+easyocr

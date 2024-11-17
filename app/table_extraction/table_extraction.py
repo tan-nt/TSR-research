@@ -1,20 +1,26 @@
 import cv2
-import pytesseract
 import pdfplumber
 import pandas as pd
 import streamlit as st
-from pytesseract import image_to_string
 import numpy as np
+from easyocr import Reader
+
+# Initialize EasyOCR
+ocr_engine = Reader(['vi'], gpu=False)  # Add 'en' or other languages as needed
 
 # Updated extract_table function
 def extract_table(file, file_type):
     if file_type in ["png", "jpg", "jpeg"]:
         return extract_table_from_image(file)
+    elif file_type == "pdf":
+        return extract_table_from_pdf(file)
+    elif file_type == "xlsx":
+        return extract_table_from_excel(file)
     else:
         st.warning(f"Unsupported file type '{file_type}' for this demo.")
         return pd.DataFrame()
 
-    
+
 def extract_table_from_pdf(pdf_file):
     tables = []
     with pdfplumber.open(pdf_file) as pdf:
@@ -27,7 +33,7 @@ def extract_table_from_pdf(pdf_file):
         return df
     else:
         return pd.DataFrame()  # Return empty DataFrame if no tables found
-    
+
 
 def extract_table_from_excel(excel_file):
     # Read the first sheet
@@ -84,13 +90,20 @@ def extract_table_from_image(image_file, contour):
     x, y, w, h = cv2.boundingRect(contour)
     cropped_image = image[y:y+h, x:x+w]
 
-    # OCR for text extraction
-    ocr_data = image_to_string(cropped_image, config="--psm 6")
-    rows = ocr_data.split("\n")
+    # Convert to grayscale for EasyOCR
+    cropped_image_rgb = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2RGB)
 
-    # Split rows into columns
-    table_data = [row.split() for row in rows if row.strip()]
+    # Perform OCR using EasyOCR
+    results = ocr_engine.readtext(cropped_image_rgb)
+
+    # Parse OCR results into structured data
+    table_data = []
+    for result in results:
+        table_data.append(result[1])  # Extract recognized text
+
+    # Split rows into columns (optional, based on your table structure)
+    rows = [row.split() for row in table_data]
 
     # Convert to DataFrame
-    df = pd.DataFrame(table_data)
+    df = pd.DataFrame(rows)
     return df
