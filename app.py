@@ -1,6 +1,5 @@
 import streamlit as st
 from streamlit_option_menu import option_menu
-import time
 from app.table_extraction.table_extraction import detect_and_show_table, extract_table_from_image
 import os
 from io import BytesIO
@@ -44,9 +43,14 @@ elif selected == "💬 Go Chat":
 def upload_and_extract_table():
     # Sidebar Configuration UI
     st.sidebar.title("Table Extraction Configuration")
-    extraction_method = st.sidebar.radio(
+    structure_extraction_method = st.sidebar.radio(
         "Choose Table Extraction Method",
-        options=["Contours Detection", "Text-based (OCR)", "Manual Bounding Box"],
+        options=["Contours Detection", "Yolo", "Transformer"],
+        help="Select how you want to extract tables from the uploaded image."
+    )
+    structure_extraction_method = st.sidebar.radio(
+        "Choose Table Structure Extraction Method",
+        options=["Contours Detection", "Yolo", "Transformer"],
         help="Select how you want to extract tables from the uploaded image."
     )
     
@@ -69,14 +73,13 @@ def upload_and_extract_table():
     else:
         st.warning("Displaying images is supported only for PNG, JPG, and JPEG formats.")
         
-    if extraction_method == "Contours Detection":
+    if structure_extraction_method == "Contours Detection":
         table_detected_image, contours = detect_and_show_table(file)
         st.image(table_detected_image, caption="Detected Table(s)", use_container_width=True)
 
         if contours:
             st.info(f"{len(contours)} table(s) detected. Processing the largest table.")            
-            # Process the largest table
-            largest_contour = max(contours, key=cv2.contourArea)
+            largest_contour = max(contours, key=cv2.contourArea) # Process the largest table
             table = extract_table_from_image(file, largest_contour)   
             if not table.empty:
                 st.write("Extracted Table:")
